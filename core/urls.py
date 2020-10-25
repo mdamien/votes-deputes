@@ -16,9 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from .views import homepage, depute
+from .views import homepage, depute, depute_dossier
 
 urlpatterns = [
     path('', homepage),
     path('<dep_id>', depute),
+    path('<dep_id>/<dos_id>', depute_dossier),
 ]

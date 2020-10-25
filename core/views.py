@@ -2,7 +2,7 @@ from django.http import HttpResponse
 
 from lys import L, raw, render
 
-from core.models import Depute, Dossier
+from core.models import Depute, Dossier, Etape
 
 
 HEADER = """
@@ -18,7 +18,7 @@ HEADER = """
   <body>
     <main role="main" class="container">
       <hr>
-      <h1 class="text-center">Votes des députés</h1>
+      <h1 class="text-center"><a href="/">Votes des députés</a></h1>
       <hr>
 """
 
@@ -55,11 +55,12 @@ def homepage(request):
 
 def depute(request, dep_id):
 	dep = Depute.objects.get(identifiant=dep_id)
-	dossiers = Dossier.objects.all()
+	dossiers = Dossier.objects.filter(date_promulgation__isnull=False).order_by("-date_promulgation", "titre")
 	return HttpResponse(template([
 		str(dep),
 		L.h2 / [
 			"Lois",
+			L.small(".text-muted") / " promulguées"
 		],
 		L.div(".list-group") / [
 			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start",
@@ -70,5 +71,28 @@ def depute(request, dep_id):
 				]
 			]
 			for dos in dossiers
+		]
+	]))
+
+def depute_dossier(request, dep_id, dos_id):
+	dep = Depute.objects.get(identifiant=dep_id)
+	dos = Dossier.objects.get(identifiant=dos_id)
+	etapes = Etape.objects.filter(dossier=dos).order_by("-date")
+	return HttpResponse(template([
+		str(dep),
+		" / ",
+		str(dos),
+		L.h2 / [
+			"Étapes",
+		],
+		L.div(".list-group") / [
+			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start",
+				href=dep.identifiant + "/" + dos.identifiant + "/" + etape.identifiant
+			) / [
+				L.div(".d-flex.w-100.justify-content-between") / [
+					L.h5(".mb-1") / etape.titre
+				]
+			]
+			for etape in etapes
 		]
 	]))

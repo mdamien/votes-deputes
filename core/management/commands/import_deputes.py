@@ -1,7 +1,7 @@
 import json, tqdm, csv
 
 from django.core.management.base import BaseCommand, CommandError
-from core.models import Depute
+from core.models import Depute, Etape
 
 class Command(BaseCommand):
 
