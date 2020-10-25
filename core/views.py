@@ -2,7 +2,7 @@ from django.http import HttpResponse
 
 from lys import L, raw, render
 
-from core.models import Depute
+from core.models import Depute, Dossier
 
 
 HEADER = """
@@ -44,11 +44,31 @@ def homepage(request):
 			L.small(".text-muted") / " actifs"
 		],
 		L.div(".list-group") / [
-			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start", href="/") / [
+			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start", href=dep.identifiant) / [
 				L.div(".d-flex.w-100.justify-content-between") / [
 					L.h5(".mb-1") / str(dep)
 				]
 			]
 			for dep in deputes
+		]
+	]))
+
+def depute(request, dep_id):
+	dep = Depute.objects.get(identifiant=dep_id)
+	dossiers = Dossier.objects.all()
+	return HttpResponse(template([
+		str(dep),
+		L.h2 / [
+			"Lois",
+		],
+		L.div(".list-group") / [
+			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start",
+				href=dep.identifiant + "/" + dos.identifiant
+			) / [
+				L.div(".d-flex.w-100.justify-content-between") / [
+					L.h5(".mb-1") / dos.titre
+				]
+			]
+			for dos in dossiers
 		]
 	]))
