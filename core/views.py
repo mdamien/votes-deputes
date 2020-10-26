@@ -90,7 +90,8 @@ def depute_dossier(request, dep_id, dos_id):
 				href=dep.identifiant + "/" + dos.identifiant + "/" + etape.identifiant
 			) / [
 				L.div(".d-flex.w-100.justify-content-between") / [
-					L.h5(".mb-1") / etape.titre
+					L.h5(".mb-1") / etape.titre,
+					L.h5(".mb-1") / str(etape.vote_set.all().count())
 				]
 			]
 			for etape in etapes

@@ -51,6 +51,7 @@ class Command(BaseCommand):
             dos = Dossier(
                 identifiant=json_dos['uid'],
                 titre=json_dos['titreDossier']['titre'],
+                slug=json_dos['titreDossier']['titreChemin'],
                 date_promulgation=find_date_promulgation(json_dos),
             )
             for etape in find_etapes(json_dos):
