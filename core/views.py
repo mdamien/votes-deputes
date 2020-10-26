@@ -2,7 +2,7 @@ from django.http import HttpResponse
 
 from lys import L, raw, render
 
-from core.models import Depute, Dossier, Etape
+from core.models import Depute, Dossier, Etape, Vote
 
 
 HEADER = """
@@ -53,6 +53,26 @@ def homepage(request):
 		]
 	]))
 
+
+def _display_depute_vote(dos, dep):
+	votes = Vote.objects.filter(etape__dossier=dos)
+	count = votes.count()
+	if count > 0:
+		try:
+			vote = votes.filter(depute=dep).first()
+		except:
+			vote = None
+		if vote:
+			if vote.position == 'pour':
+				return L.small(".badge.badge-success") / vote.position
+			elif vote.position == 'container':
+				return L.small(".badge.badge-danger") / vote.position
+			elif vote.position == 'abstention':
+				return L.small(".badge.badge-info") / vote.position
+		else:
+			return L.small(".badge.badge-info") / f"non-présent sur {count}"
+
+
 def depute(request, dep_id):
 	dep = Depute.objects.get(identifiant=dep_id)
 	dossiers = Dossier.objects.filter(date_promulgation__isnull=False).order_by("-date_promulgation", "titre")
@@ -67,7 +87,8 @@ def depute(request, dep_id):
 				href=dep.identifiant + "/" + dos.identifiant
 			) / [
 				L.div(".d-flex.w-100.justify-content-between") / [
-					L.h5(".mb-1") / dos.titre
+					L.h5(".mb-1") / dos.titre,
+					_display_depute_vote(dos, dep),
 				]
 			]
 			for dos in dossiers
@@ -80,7 +101,7 @@ def _display_etape_vote(etape, dep):
 	if count > 0:
 		try:
 			vote = etape.vote_set.get(depute=dep)
-		except e:
+		except:
 			vote = None
 		if vote:
 			if vote.position == 'pour':
