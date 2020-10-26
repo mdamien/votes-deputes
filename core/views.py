@@ -74,6 +74,24 @@ def depute(request, dep_id):
 		]
 	]))
 
+
+def _display_etape_vote(etape, dep):
+	count = etape.vote_set.all().count()
+	if count > 0:
+		try:
+			vote = etape.vote_set.get(depute=dep)
+		except e:
+			vote = None
+		if vote:
+			if vote.position == 'pour':
+				return L.small(".badge.badge-success") / vote.position
+			elif vote.position == 'container':
+				return L.small(".badge.badge-danger") / vote.position
+			elif vote.position == 'abstention':
+				return L.small(".badge.badge-info") / vote.position
+		else:
+			return L.small(".badge.badge-info") / f"non-présent sur {count}"
+
 def depute_dossier(request, dep_id, dos_id):
 	dep = Depute.objects.get(identifiant=dep_id)
 	dos = Dossier.objects.get(identifiant=dos_id)
@@ -91,7 +109,7 @@ def depute_dossier(request, dep_id, dos_id):
 			) / [
 				L.div(".d-flex.w-100.justify-content-between") / [
 					L.h5(".mb-1") / etape.titre,
-					L.h5(".mb-1") / str(etape.vote_set.all().count())
+					_display_etape_vote(etape, dep),
 				]
 			]
 			for etape in etapes
