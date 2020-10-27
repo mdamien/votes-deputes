@@ -83,5 +83,21 @@ class Command(BaseCommand):
                                 else:
                                     # ancien deputé
                                     continue
+                        elif titre.startswith("l'article"):
+                            print(titre)
+                            article = titre.split("l'article")[1].split(' d')[0]
+                            for vote in find_positions(json_file):
+                                if vote["depute"] in deputes:
+                                    votes.append(Vote(
+                                        etape=etape,
+                                        article=article,
+                                        url_scrutin=infos["url_scrutin"],
+                                        depute=deputes[vote["depute"]],
+                                        position=vote["position"]
+                                    ))
+                                else:
+                                    # ancien deputé
+                                    continue
+
         print('creating', len(votes), "votes")
         Vote.objects.bulk_create(votes)

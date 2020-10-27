@@ -32,6 +32,7 @@ class Etape(models.Model):
 
 class Vote(models.Model):
 	etape = models.ForeignKey(Etape, on_delete=models.CASCADE)
+	article = models.CharField(max_length=16, null=True)
 	depute = models.ForeignKey(Depute, on_delete=models.CASCADE)
 	position = models.CharField(max_length=16)
 	url_scrutin = models.CharField(max_length=200)

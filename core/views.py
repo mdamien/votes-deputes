@@ -55,14 +55,14 @@ def homepage(request):
 
 
 def _display_depute_vote(dos, dep):
-	last_vote = Vote.objects.filter(etape__dossier=dos).order_by('etape__date').last()
+	last_vote = Vote.objects.filter(etape__dossier=dos, article__isnull=True).order_by('etape__date').last()
 	if last_vote:
 		count = last_vote.etape.vote_set.all().count()
 	else:
 		count = 0
 	if count > 0:
 		try:
-			vote = Vote.objects.filter(etape__dossier=dos).order_by('etape__date').filter(depute=dep).last()
+			vote = Vote.objects.filter(etape__dossier=dos, article__isnull=True).order_by('etape__date').filter(depute=dep).last()
 		except:
 			vote = None
 		if vote:
@@ -100,7 +100,7 @@ def depute(request, dep_id):
 
 
 def _display_etape_vote(etape, dep):
-	count = etape.vote_set.all().count()
+	count = etape.vote_set.filter(article__isnull=True).count()
 	if count > 0:
 		try:
 			vote = etape.vote_set.get(depute=dep)
@@ -141,14 +141,33 @@ def depute_dossier(request, dep_id, dos_id):
 	]))
 
 
+def _display_article_vote(etape, dep, article):
+	count = etape.vote_set.filter(article=article).count()
+	if count > 0:
+		try:
+			vote = etape.vote_set.filter(article=article, depute=dep).first()
+		except:
+			vote = None
+		if vote:
+			if vote.position == 'pour':
+				return L.small(".badge.badge-success") / vote.position
+			elif vote.position == 'contre':
+				return L.small(".badge.badge-danger") / vote.position
+			elif vote.position == 'abstention':
+				return L.small(".badge.badge-warning") / vote.position
+		else:
+			return L.small(".badge.badge-info") / f"absent(e) sur {count}"
+
+
 def depute_etape(request, dep_id, etape_id):
 	dep = Depute.objects.get(identifiant=dep_id)
 	etape = Etape.objects.get(identifiant=etape_id)
 	dos = etape.dossier
 	try:
-		vote = etape.vote_set.get(depute=dep)
+		vote = etape.vote_set.filter(article__isnull=True).get(depute=dep)
 	except:
-		vote = etape.vote_set.first()
+		vote = None
+	articles = etape.vote_set.values_list('article', flat=True).order_by('article').distinct()
 	return HttpResponse(template([
 		str(dep),
 		" / ",
@@ -162,5 +181,20 @@ def depute_etape(request, dep_id, etape_id):
 				L.p / L.a(href=vote.url_scrutin) / L.button(".btn.btn-primary") / "lien scrutin"
 			) if vote else None
 		),
+		L.h2 / [
+			"Articles",
+			L.small(".text-muted") / " votés"
+		],
+		L.div(".list-group") / [
+			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start",
+				href="/" + dep.identifiant + "/etape/" + etape.identifiant + "/article/" + article
+			) / [
+				L.div(".d-flex.w-100.justify-content-between") / [
+					L.h5(".mb-1") / article,
+					_display_article_vote(etape, dep, article),
+				]
+			]
+			for article in articles if article
+		]
 	]))
 
