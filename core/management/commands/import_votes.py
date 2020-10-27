@@ -84,7 +84,6 @@ class Command(BaseCommand):
                                     # ancien deputé
                                     continue
                         elif titre.startswith("l'article"):
-                            print(titre)
                             article = titre.split("l'article")[1].split(' d')[0]
                             for vote in find_positions(json_file):
                                 if vote["depute"] in deputes:
