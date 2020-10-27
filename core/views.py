@@ -156,7 +156,11 @@ def depute_etape(request, dep_id, etape_id):
 		" / ",
 		str(etape),
 		(
-			(L.p / L.a(href=vote.url_scrutin) / "lien scrutin") if vote else None
+			(
+				L.br,
+				L.br,
+				L.p / L.a(href=vote.url_scrutin) / L.button(".btn.btn-primary") / "lien scrutin"
+			) if vote else None
 		),
 	]))
 
