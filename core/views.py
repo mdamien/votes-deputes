@@ -55,11 +55,14 @@ def homepage(request):
 
 
 def _display_depute_vote(dos, dep):
-	votes = Vote.objects.filter(etape__dossier=dos)
-	count = votes.count()
+	last_vote = Vote.objects.filter(etape__dossier=dos).order_by('etape__date').last()
+	if last_vote:
+		count = last_vote.etape.vote_set.all().count()
+	else:
+		count = 0
 	if count > 0:
 		try:
-			vote = votes.filter(depute=dep).first()
+			vote = Vote.objects.filter(etape__dossier=dos).order_by('etape__date').filter(depute=dep).last()
 		except:
 			vote = None
 		if vote:
