@@ -84,7 +84,7 @@ def depute(request, dep_id):
 		],
 		L.div(".list-group") / [
 			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start",
-				href=dep.identifiant + "/" + dos.identifiant
+				href="/" + dep.identifiant + "/dossier/" + dos.identifiant
 			) / [
 				L.div(".d-flex.w-100.justify-content-between") / [
 					L.h5(".mb-1") / dos.titre,
@@ -126,7 +126,7 @@ def depute_dossier(request, dep_id, dos_id):
 		],
 		L.div(".list-group") / [
 			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start",
-				href=dep.identifiant + "/" + dos.identifiant + "/" + etape.identifiant
+				href="/" + dep.identifiant + "/etape/" + etape.identifiant
 			) / [
 				L.div(".d-flex.w-100.justify-content-between") / [
 					L.h5(".mb-1") / etape.titre,
@@ -136,3 +136,19 @@ def depute_dossier(request, dep_id, dos_id):
 			for etape in etapes
 		]
 	]))
+
+
+def depute_etape(request, dep_id, etape_id):
+	dep = Depute.objects.get(identifiant=dep_id)
+	etape = Etape.objects.get(identifiant=etape_id)
+	try:
+		vote = etape.vote_set.get(depute=dep)
+	except:
+		vote = etape.vote_set.first()
+	return HttpResponse(template([
+		str(dep),
+		" / ",
+		str(etape),
+		L.p / L.a(href=vote.url_scrutin) / "lien scrutin",
+	]))
+

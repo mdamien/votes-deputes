@@ -65,6 +65,7 @@ class Command(BaseCommand):
                                 if vote["depute"] in deputes:
                                     votes.append(Vote(
                                         etape=etape,
+                                        url_scrutin=infos["url_scrutin"],
                                         depute=deputes[vote["depute"]],
                                         position=vote["position"]
                                     ))
