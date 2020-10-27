@@ -61,13 +61,13 @@ class Command(BaseCommand):
                         codeActe = "AN2-DEBATS-DEC"
                     if '(texte de la commission mixte paritaire)' in titre:
                         codeActe = "CMP-DEBATS-AN-DEC"
-                    if '(lecture définitive)' in titre:
-                        codeActe = "ANLDEF-DEBATS-DEC"
                     if '(nouvelle lecture)' in titre:
                         codeActe = "ANNLEC-DEBATS-DEC"
+                    if '(lecture définitive)' in titre:
+                        codeActe = "ANLDEF-DEBATS-DEC"
                     if codeActe:
                         try:
-                            etape = dossier.etape_set.get(titre=codeActe)
+                            etape = dossier.etape_set.get(code_acte=codeActe)
                         except:
                             # print("no etape", titre)
                             continue

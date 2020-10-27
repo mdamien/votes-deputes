@@ -70,7 +70,7 @@ def _display_depute_vote(dos, dep):
 			elif vote.position == 'abstention':
 				return L.small(".badge.badge-warning") / vote.position
 		else:
-			return L.small(".badge.badge-info") / f"absent sur {count}"
+			return L.small(".badge.badge-info") / f"absent(e) sur {count}"
 
 
 def depute(request, dep_id):
@@ -111,7 +111,7 @@ def _display_etape_vote(etape, dep):
 			elif vote.position == 'abstention':
 				return L.small(".badge.badge-warning") / vote.position
 		else:
-			return L.small(".badge.badge-info") / f"absent sur {count}"
+			return L.small(".badge.badge-info") / f"absent(e) sur {count}"
 
 def depute_dossier(request, dep_id, dos_id):
 	dep = Depute.objects.get(identifiant=dep_id)
@@ -141,12 +141,15 @@ def depute_dossier(request, dep_id, dos_id):
 def depute_etape(request, dep_id, etape_id):
 	dep = Depute.objects.get(identifiant=dep_id)
 	etape = Etape.objects.get(identifiant=etape_id)
+	dos = etape.dossier
 	try:
 		vote = etape.vote_set.get(depute=dep)
 	except:
 		vote = etape.vote_set.first()
 	return HttpResponse(template([
 		str(dep),
+		" / ",
+		str(dos),
 		" / ",
 		str(etape),
 		L.p / L.a(href=vote.url_scrutin) / "lien scrutin",

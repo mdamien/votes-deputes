@@ -22,11 +22,31 @@ def find_date_promulgation(json_dos):
 def find_etapes(json_dos):
     if type(json_dos) is dict:
         if "textesAssocies" in json_dos or "texteAssocie" in json_dos:
-            yield {
-                "identifiant": json_dos["uid"],
-                "titre": json_dos["codeActe"],
-                "date": json_dos["dateActe"],
-            }
+            codeActe = json_dos["codeActe"]
+            if (codeActe.startswith("AN") or "-AN" in codeActe) and "-DEBATS" in codeActe:
+                titre = None
+                if codeActe == "AN1-DEBATS-DEC":
+                    titre = "première lecture"
+                elif codeActe == "AN2-DEBATS-DEC":
+                    titre = "deuxième lecture"
+                elif codeActe == "CMP-DEBATS-AN-DEC":
+                    titre = "texte de la commission mixte paritaire"
+                elif codeActe == "ANNLEC-DEBATS-DEC":
+                    titre = "nouvelle lecture"
+                elif codeActe == "ANLDEF-DEBATS-DEC":
+                    titre = "lecture définitive"
+                elif codeActe == "ANLUNI-DEBATS-DEC":
+                    titre = "lecture unique"
+                elif codeActe == "AN1-DEBATS-MOTION-VOTE":
+                    titre = "débat motion"
+                else:
+                    raise Exception(codeActe)
+                yield {
+                    "identifiant": json_dos["uid"],
+                    "titre": titre,
+                    "code_acte": codeActe,
+                    "date": json_dos["dateActe"],
+                }
         if "acteLegislatif" in json_dos:
             yield from find_etapes(json_dos["acteLegislatif"])
         if "actesLegislatifs" in json_dos:
@@ -61,5 +81,7 @@ class Command(BaseCommand):
                     **etape,
                 ))
             doslegs.append(dos)
+        print("creating", len(doslegs), "dossiers")
         Dossier.objects.bulk_create(doslegs)
+        print("creating", len(etapes), "etapes")
         Etape.objects.bulk_create(etapes)

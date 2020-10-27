@@ -24,6 +24,7 @@ class Etape(models.Model):
 	identifiant = models.CharField(max_length=16, primary_key=True) # could be codeActe
 	dossier = models.ForeignKey(Dossier, on_delete=models.CASCADE)
 	date = models.CharField(max_length=40)
+	code_acte = models.CharField(max_length=40)
 	titre = models.CharField(max_length=200)
 
 	def __str__(self):
