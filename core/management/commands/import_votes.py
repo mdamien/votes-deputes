@@ -53,14 +53,25 @@ class Command(BaseCommand):
                     except:
                         # print("no match", link_dos)
                         continue
-                    titre = json_file['titre']
+                    titre = infos['objet']
+                    codeActe = None
                     if '(première lecture)' in titre:
+                        codeActe = "AN1-DEBATS-DEC"
+                    if '(deuxième lecture)' in titre:
+                        codeActe = "AN2-DEBATS-DEC"
+                    if '(texte de la commission mixte paritaire)' in titre:
+                        codeActe = "CMP-DEBATS-AN-DEC"
+                    if '(lecture définitive)' in titre:
+                        codeActe = "ANLDEF-DEBATS-DEC"
+                    if '(nouvelle lecture)' in titre:
+                        codeActe = "ANNLEC-DEBATS-DEC"
+                    if codeActe:
                         try:
-                            etape = dossier.etape_set.get(titre="AN1-DEBATS-DEC")
+                            etape = dossier.etape_set.get(titre=codeActe)
                         except:
                             # print("no etape", titre)
                             continue
-                        if "l'ensemble du" in titre:
+                        if "l'ensemble d" in titre:
                             for vote in find_positions(json_file):
                                 if vote["depute"] in deputes:
                                     votes.append(Vote(

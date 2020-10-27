@@ -68,9 +68,9 @@ def _display_depute_vote(dos, dep):
 			elif vote.position == 'container':
 				return L.small(".badge.badge-danger") / vote.position
 			elif vote.position == 'abstention':
-				return L.small(".badge.badge-info") / vote.position
+				return L.small(".badge.badge-warning") / vote.position
 		else:
-			return L.small(".badge.badge-info") / f"non-présent sur {count}"
+			return L.small(".badge.badge-info") / f"absent sur {count}"
 
 
 def depute(request, dep_id):
@@ -109,9 +109,9 @@ def _display_etape_vote(etape, dep):
 			elif vote.position == 'container':
 				return L.small(".badge.badge-danger") / vote.position
 			elif vote.position == 'abstention':
-				return L.small(".badge.badge-info") / vote.position
+				return L.small(".badge.badge-warning") / vote.position
 		else:
-			return L.small(".badge.badge-info") / f"non-présent sur {count}"
+			return L.small(".badge.badge-info") / f"absent sur {count}"
 
 def depute_dossier(request, dep_id, dos_id):
 	dep = Depute.objects.get(identifiant=dep_id)
