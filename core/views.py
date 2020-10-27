@@ -65,7 +65,7 @@ def _display_depute_vote(dos, dep):
 		if vote:
 			if vote.position == 'pour':
 				return L.small(".badge.badge-success") / vote.position
-			elif vote.position == 'container':
+			elif vote.position == 'contre':
 				return L.small(".badge.badge-danger") / vote.position
 			elif vote.position == 'abstention':
 				return L.small(".badge.badge-warning") / vote.position
@@ -106,7 +106,7 @@ def _display_etape_vote(etape, dep):
 		if vote:
 			if vote.position == 'pour':
 				return L.small(".badge.badge-success") / vote.position
-			elif vote.position == 'container':
+			elif vote.position == 'contre':
 				return L.small(".badge.badge-danger") / vote.position
 			elif vote.position == 'abstention':
 				return L.small(".badge.badge-warning") / vote.position
