@@ -165,6 +165,7 @@ def _sort_articles(a):
 	except:
 		return 0
 
+
 def depute_etape(request, dep_id, etape_id):
 	dep = Depute.objects.get(identifiant=dep_id)
 	etape = Etape.objects.get(identifiant=etape_id)
@@ -199,12 +200,36 @@ def depute_etape(request, dep_id, etape_id):
 					href="/" + dep.identifiant + "/etape/" + etape.identifiant + "/article/" + article
 				) / [
 					L.div(".d-flex.w-100.justify-content-between") / [
-						L.h5(".mb-1") / article,
+						L.h5(".mb-1") / f"Article {article}",
 						_display_article_vote(etape, dep, article),
 					]
 				]
 				for article in articles
 			]
 		) if articles else None,
+	]))
+
+
+def depute_article(request, dep_id, etape_id, article):
+	dep = Depute.objects.get(identifiant=dep_id)
+	etape = Etape.objects.get(identifiant=etape_id)
+	dos = etape.dossier
+	try:
+		vote = etape.vote_set.filter(article=article).first()
+	except:
+		vote = None
+	return HttpResponse(template([
+		str(dep),
+		" / ",
+		str(dos),
+		" / ",
+		str(etape),
+		(
+			(
+				L.br,
+				L.br,
+				L.p / L.a(href=vote.url_scrutin) / L.button(".btn.btn-primary") / "lien scrutin"
+			) if vote else None
+		),
 	]))
 

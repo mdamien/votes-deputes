@@ -16,11 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from .views import homepage, depute, depute_dossier, depute_etape
+from .views import homepage, depute, depute_dossier, depute_etape, depute_article
 
 urlpatterns = [
     path('', homepage),
     path('<dep_id>', depute),
     path('<dep_id>/dossier/<dos_id>', depute_dossier),
     path('<dep_id>/etape/<etape_id>', depute_etape),
+    path('<dep_id>/etape/<etape_id>/article/<article>', depute_article),
 ]
