@@ -174,7 +174,7 @@ def depute_etape(request, dep_id, etape_id):
 	except:
 		vote = None
 	articles = etape.vote_set.values_list('article', flat=True).order_by('article').distinct()
-	articles = list(articles)
+	articles = [a for a in articles if a]
 	articles.sort(key=_sort_articles)
 	return HttpResponse(template([
 		str(dep),
@@ -189,20 +189,22 @@ def depute_etape(request, dep_id, etape_id):
 				L.p / L.a(href=vote.url_scrutin) / L.button(".btn.btn-primary") / "lien scrutin"
 			) if vote else None
 		),
-		L.h2 / [
-			"Articles",
-			L.small(".text-muted") / " votés"
-		],
-		L.div(".list-group") / [
-			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start",
-				href="/" + dep.identifiant + "/etape/" + etape.identifiant + "/article/" + article
-			) / [
-				L.div(".d-flex.w-100.justify-content-between") / [
-					L.h5(".mb-1") / article,
-					_display_article_vote(etape, dep, article),
+		(
+			L.h2 / [
+				"Articles",
+				L.small(".text-muted") / " votés"
+			],
+			L.div(".list-group") / [
+				L.a(".list-group-item.list-group-item-action.flex-column.align-items-start",
+					href="/" + dep.identifiant + "/etape/" + etape.identifiant + "/article/" + article
+				) / [
+					L.div(".d-flex.w-100.justify-content-between") / [
+						L.h5(".mb-1") / article,
+						_display_article_vote(etape, dep, article),
+					]
 				]
+				for article in articles
 			]
-			for article in articles if article
-		]
+		) if articles else None,
 	]))
 
