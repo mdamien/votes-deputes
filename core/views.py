@@ -1,4 +1,5 @@
 from django.http import HttpResponse
+from django.db.models.functions import Lower
 
 from lys import L, raw, render
 
@@ -71,7 +72,7 @@ def _render_vote(vote, count):
 
 
 def homepage(request):
-	deputes = Depute.objects.all().order_by('nom', 'prenom')
+	deputes = Depute.objects.all().order_by(Lower('nom'), 'prenom')
 	return HttpResponse(template([
 		L.h2 / [
 			"Députés ",
@@ -80,7 +81,7 @@ def homepage(request):
 		L.div(".list-group") / [
 			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start", href=dep.url()) / [
 				L.div(".d-flex.w-100.justify-content-between") / [
-					L.h5(".mb-1") / str(dep),
+					L.h5(".mb-1") / f"{dep.nom}, {dep.prenom}",
 				]
 			]
 			for dep in deputes
