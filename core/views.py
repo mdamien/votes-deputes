@@ -90,6 +90,7 @@ def homepage(request):
 			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start", href=dep.url()) / [
 				L.div(".d-flex.w-100.justify-content-between") / [
 					L.h5(".mb-1") / f"{dep.nom}, {dep.prenom}",
+					L.small / f"{dep.groupe}"
 				]
 			]
 			for dep in deputes
@@ -104,6 +105,7 @@ def homepage(request):
 			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start", href=dep.url()) / [
 				L.div(".d-flex.w-100.justify-content-between") / [
 					L.h5(".mb-1") / f"{dep.nom}, {dep.prenom}",
+					L.small / f"{dep.groupe}"
 				]
 			]
 			for dep in deputes_inactifs

@@ -16,7 +16,8 @@ class Command(BaseCommand):
                 identifiant=line['id_an'],
                 prenom=line['prenom'],
                 nom=line['nom_de_famille'],
-                actif=line['ancien_depute'] == "0"
+                actif=line['ancien_depute'] == "0",
+                groupe=line['groupe_sigle'],
             )
             deps.append(dep)
         print('creating', len(deps), 'deputes')

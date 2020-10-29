@@ -6,6 +6,7 @@ class Depute(models.Model):
 	prenom = models.CharField(max_length=100)
 	nom = models.CharField(max_length=100)
 	actif = models.BooleanField()
+	groupe = models.CharField(max_length=100)
 
 	def url(self):
 		return '/' + self.identifiant
