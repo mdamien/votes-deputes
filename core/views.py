@@ -159,6 +159,12 @@ def _display_article_vote(etape, dep, article):
 			return L.small(".badge.badge-info") / f"absent(e) sur {count}"
 
 
+def _sort_articles(a):
+	try:
+		return int(a.split(' ')[0])
+	except:
+		return 0
+
 def depute_etape(request, dep_id, etape_id):
 	dep = Depute.objects.get(identifiant=dep_id)
 	etape = Etape.objects.get(identifiant=etape_id)
@@ -168,6 +174,8 @@ def depute_etape(request, dep_id, etape_id):
 	except:
 		vote = None
 	articles = etape.vote_set.values_list('article', flat=True).order_by('article').distinct()
+	articles = list(articles)
+	articles.sort(key=_sort_articles)
 	return HttpResponse(template([
 		str(dep),
 		" / ",
