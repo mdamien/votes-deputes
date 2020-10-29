@@ -6,6 +6,9 @@ class Depute(models.Model):
 	prenom = models.CharField(max_length=100)
 	nom = models.CharField(max_length=100)
 
+	def url(self):
+		return '/' + self.identifiant
+
 	def __str__(self):
 		return f"{self.prenom} {self.nom}"
 
@@ -15,6 +18,9 @@ class Dossier(models.Model):
 	titre = models.CharField(max_length=200)
 	slug = models.CharField(max_length=200, null=True)
 	date_promulgation = models.CharField(max_length=40, null=True)
+
+	def url(self, dep):
+		return dep.url() + "/dossier/" + self.identifiant
 
 	def __str__(self):
 		return self.titre
@@ -26,6 +32,9 @@ class Etape(models.Model):
 	date = models.CharField(max_length=40)
 	code_acte = models.CharField(max_length=40)
 	titre = models.CharField(max_length=200)
+
+	def url(self, dep):
+		return dep.url() + '/etape/' + self.identifiant
 
 	def __str__(self):
 		return self.titre

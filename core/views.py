@@ -36,6 +36,28 @@ def template(content):
 		raw(FOOTER)
 	])
 
+
+def _render_breadcrumb(els):
+
+	def _el_url(el):
+		nonlocal els
+		if hasattr(el, 'url'):
+			if el == els[0]:
+				return el.url()
+			else:
+				return el.url(els[0])
+
+	return L.ol(".breadcrumb") / [
+		(
+			(
+				L.li('.breadcrumb-item') / L.a(href=_el_url(el)) / str(el)
+			) if el != els[-1] else (
+				L.li('.breadcrumb-item.active') / str(el)
+			)
+		) for el in els
+	]
+
+
 def _render_vote(vote, count):
 	if vote:
 		if vote.position == 'pour':
@@ -47,6 +69,7 @@ def _render_vote(vote, count):
 	else:
 		return L.small(".badge.badge-info") / f"absent(e) sur {count}"
 
+
 def homepage(request):
 	deputes = Depute.objects.all().order_by('nom', 'prenom')
 	return HttpResponse(template([
@@ -55,7 +78,7 @@ def homepage(request):
 			L.small(".text-muted") / " actifs"
 		],
 		L.div(".list-group") / [
-			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start", href=dep.identifiant) / [
+			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start", href=dep.url()) / [
 				L.div(".d-flex.w-100.justify-content-between") / [
 					L.h5(".mb-1") / str(dep),
 				]
@@ -83,14 +106,14 @@ def depute(request, dep_id):
 	dep = Depute.objects.get(identifiant=dep_id)
 	dossiers = Dossier.objects.filter(date_promulgation__isnull=False).order_by("-date_promulgation", "titre")
 	return HttpResponse(template([
-		str(dep),
+		_render_breadcrumb([dep]),
 		L.h2 / [
 			"Lois",
 			L.small(".text-muted") / " promulguées"
 		],
 		L.div(".list-group") / [
 			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start",
-				href="/" + dep.identifiant + "/dossier/" + dos.identifiant
+				href=dos.url(dep)
 			) / [
 				L.div(".d-flex.w-100.justify-content-between") / [
 					L.h5(".mb-1") / dos.titre,
@@ -117,15 +140,13 @@ def depute_dossier(request, dep_id, dos_id):
 	dos = Dossier.objects.get(identifiant=dos_id)
 	etapes = Etape.objects.filter(dossier=dos).order_by("-date")
 	return HttpResponse(template([
-		str(dep),
-		" / ",
-		str(dos),
+		_render_breadcrumb([dep, dos]),
 		L.h2 / [
 			"Étapes",
 		],
 		L.div(".list-group") / [
 			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start",
-				href="/" + dep.identifiant + "/etape/" + etape.identifiant
+				href=etape.url(dep)
 			) / [
 				L.div(".d-flex.w-100.justify-content-between") / [
 					L.h5(".mb-1") / etape.titre,
@@ -166,15 +187,9 @@ def depute_etape(request, dep_id, etape_id):
 	articles = [a for a in articles if a]
 	articles.sort(key=_sort_articles)
 	return HttpResponse(template([
-		str(dep),
-		" / ",
-		str(dos),
-		" / ",
-		str(etape),
+		_render_breadcrumb([dep, dos, etape]),
 		(
 			(
-				L.br,
-				L.br,
 				L.p / L.a(href=vote.url_scrutin) / L.button(".btn.btn-primary") / "lien scrutin"
 			) if vote else None
 		),
@@ -207,15 +222,9 @@ def depute_article(request, dep_id, etape_id, article):
 	except:
 		vote = None
 	return HttpResponse(template([
-		str(dep),
-		" / ",
-		str(dos),
-		" / ",
-		str(etape),
+		_render_breadcrumb([dep, dos, etape, article]),
 		(
 			(
-				L.br,
-				L.br,
 				L.p / L.a(href=vote.url_scrutin) / L.button(".btn.btn-primary") / "lien scrutin"
 			) if vote else None
 		),
