@@ -170,7 +170,7 @@ def depute_etape(request, dep_id, etape_id):
 	etape = Etape.objects.get(identifiant=etape_id)
 	dos = etape.dossier
 	try:
-		vote = etape.vote_set.filter(article__isnull=True).get(depute=dep)
+		vote = etape.vote_set.filter(article__isnull=True).first()
 	except:
 		vote = None
 	articles = etape.vote_set.values_list('article', flat=True).order_by('article').distinct()
