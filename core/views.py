@@ -74,6 +74,13 @@ def _render_vote(vote, count):
 def homepage(request):
 	deputes = Depute.objects.all().order_by(Lower('nom'), 'prenom')
 	return HttpResponse(template([
+		raw("""
+		<div class="alert alert-dismissible alert-info">
+		  <p>Ce site permet de retrouver facilement le votes de vos députés sur les lois et articles des lois</p>
+		  <p>Vous pouvez trouver votre député par circonscription sur
+		  	 <a href="https://www.nosdeputes.fr/circonscription" class="alert-link">NosDéputés.fr</a></p>
+		</div>
+		"""),
 		L.h2 / [
 			"Députés ",
 			L.small(".text-muted") / " actifs"
