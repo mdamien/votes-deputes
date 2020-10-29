@@ -36,6 +36,17 @@ def template(content):
 		raw(FOOTER)
 	])
 
+def _render_vote(vote, count):
+	if vote:
+		if vote.position == 'pour':
+			return L.small(".badge.badge-success") / vote.position
+		elif vote.position == 'contre':
+			return L.small(".badge.badge-danger") / vote.position
+		elif vote.position == 'abstention':
+			return L.small(".badge.badge-warning") / vote.position
+	else:
+		return L.small(".badge.badge-info") / f"absent(e) sur {count}"
+
 def homepage(request):
 	deputes = Depute.objects.all().order_by('nom', 'prenom')
 	return HttpResponse(template([
@@ -46,7 +57,7 @@ def homepage(request):
 		L.div(".list-group") / [
 			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start", href=dep.identifiant) / [
 				L.div(".d-flex.w-100.justify-content-between") / [
-					L.h5(".mb-1") / str(dep)
+					L.h5(".mb-1") / str(dep),
 				]
 			]
 			for dep in deputes
@@ -65,15 +76,7 @@ def _display_depute_vote(dos, dep):
 			vote = Vote.objects.filter(etape__dossier=dos, article__isnull=True).order_by('etape__date').filter(depute=dep).last()
 		except:
 			vote = None
-		if vote:
-			if vote.position == 'pour':
-				return L.small(".badge.badge-success") / vote.position
-			elif vote.position == 'contre':
-				return L.small(".badge.badge-danger") / vote.position
-			elif vote.position == 'abstention':
-				return L.small(".badge.badge-warning") / vote.position
-		else:
-			return L.small(".badge.badge-info") / f"absent(e) sur {count}"
+		return _render_vote(vote, count)
 
 
 def depute(request, dep_id):
@@ -106,15 +109,8 @@ def _display_etape_vote(etape, dep):
 			vote = etape.vote_set.get(depute=dep)
 		except:
 			vote = None
-		if vote:
-			if vote.position == 'pour':
-				return L.small(".badge.badge-success") / vote.position
-			elif vote.position == 'contre':
-				return L.small(".badge.badge-danger") / vote.position
-			elif vote.position == 'abstention':
-				return L.small(".badge.badge-warning") / vote.position
-		else:
-			return L.small(".badge.badge-info") / f"absent(e) sur {count}"
+		return _render_vote(vote, count)
+
 
 def depute_dossier(request, dep_id, dos_id):
 	dep = Depute.objects.get(identifiant=dep_id)
@@ -148,15 +144,7 @@ def _display_article_vote(etape, dep, article):
 			vote = etape.vote_set.filter(article=article, depute=dep).first()
 		except:
 			vote = None
-		if vote:
-			if vote.position == 'pour':
-				return L.small(".badge.badge-success") / vote.position
-			elif vote.position == 'contre':
-				return L.small(".badge.badge-danger") / vote.position
-			elif vote.position == 'abstention':
-				return L.small(".badge.badge-warning") / vote.position
-		else:
-			return L.small(".badge.badge-info") / f"absent(e) sur {count}"
+		return _render_vote(vote, count)
 
 
 def _sort_articles(a):
