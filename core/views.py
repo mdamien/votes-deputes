@@ -72,7 +72,8 @@ def _render_vote(vote, count):
 
 
 def homepage(request):
-	deputes = Depute.objects.all().order_by(Lower('nom'), 'prenom')
+	deputes = Depute.objects.filter(actif=True).order_by(Lower('nom'), 'prenom')
+	deputes_inactifs = Depute.objects.filter(actif=False).order_by(Lower('nom'), 'prenom')
 	return HttpResponse(template([
 		raw("""
 		<div class="alert alert-dismissible alert-info">
@@ -92,6 +93,20 @@ def homepage(request):
 				]
 			]
 			for dep in deputes
+		],
+		L.br,
+		L.br,
+		L.h2 / [
+			"Députés ",
+			L.small(".text-muted") / " inactifs"
+		],
+		L.div(".list-group") / [
+			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start", href=dep.url()) / [
+				L.div(".d-flex.w-100.justify-content-between") / [
+					L.h5(".mb-1") / f"{dep.nom}, {dep.prenom}",
+				]
+			]
+			for dep in deputes_inactifs
 		]
 	]))
 

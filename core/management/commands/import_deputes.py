@@ -9,13 +9,15 @@ class Command(BaseCommand):
         parser.add_argument('file', type=str)
 
     def handle(self, *args, **options):
-    	Depute.objects.all().delete()
-    	deps = []
-    	for line in csv.DictReader(open(options['file'])):
-    		dep = Depute(
-    			identifiant=line['identifiant'],
-    			prenom=line['Prénom'],
-    			nom=line['Nom'],
-    		)
-    		deps.append(dep)
-    	Depute.objects.bulk_create(deps)
+        Depute.objects.all().delete()
+        deps = []
+        for line in csv.DictReader(open(options['file']), delimiter=';'):
+            dep = Depute(
+                identifiant=line['id_an'],
+                prenom=line['prenom'],
+                nom=line['nom_de_famille'],
+                actif=line['ancien_depute'] == "0"
+            )
+            deps.append(dep)
+        print('creating', len(deps), 'deputes')
+        Depute.objects.bulk_create(deps)

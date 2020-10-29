@@ -73,30 +73,22 @@ class Command(BaseCommand):
                             continue
                         if "l'ensemble d" in titre:
                             for vote in find_positions(json_file):
-                                if vote["depute"] in deputes:
-                                    votes.append(Vote(
-                                        etape=etape,
-                                        url_scrutin=infos["url_scrutin"],
-                                        depute=deputes[vote["depute"]],
-                                        position=vote["position"]
-                                    ))
-                                else:
-                                    # ancien deputé
-                                    continue
+                                votes.append(Vote(
+                                    etape=etape,
+                                    url_scrutin=infos["url_scrutin"],
+                                    depute=deputes[vote["depute"]],
+                                    position=vote["position"]
+                                ))
                         elif titre.startswith("l'article"):
                             article = titre.split("l'article")[1].split(' d')[0]
                             for vote in find_positions(json_file):
-                                if vote["depute"] in deputes:
-                                    votes.append(Vote(
-                                        etape=etape,
-                                        article=article,
-                                        url_scrutin=infos["url_scrutin"],
-                                        depute=deputes[vote["depute"]],
-                                        position=vote["position"]
-                                    ))
-                                else:
-                                    # ancien deputé
-                                    continue
+                                votes.append(Vote(
+                                    etape=etape,
+                                    article=article,
+                                    url_scrutin=infos["url_scrutin"],
+                                    depute=deputes[vote["depute"]],
+                                    position=vote["position"]
+                                ))
 
         print('creating', len(votes), "votes")
         Vote.objects.bulk_create(votes)
