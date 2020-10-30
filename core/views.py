@@ -214,9 +214,20 @@ def depute_etape(request, dep_id, etape_id):
 	articles.sort(key=_sort_articles)
 	return HttpResponse(template([
 		_render_breadcrumb([dep, dos, etape]),
+		(
+			L.span('.badge.badge-pill.badge-dark') / (
+				'Le ',
+				scrutin.date,
+				(
+					' ',
+					scrutin.heure
+				) if scrutin.heure else None,
+			),
+		),
 		L.p / (
 			(
-				L.a(href=scrutin.url_an) / L.button(".btn.btn-primary") / "scrutin",
+				' ',
+				L.a(href=scrutin.url_an) / L.button(".btn.btn-primary") / f'Scrutin',
 				(
 					' ',
 					L.a(href=scrutin.url_video) / L.button(".btn.btn-primary") / "video du  vote",

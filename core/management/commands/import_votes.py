@@ -36,7 +36,7 @@ class Command(BaseCommand):
 
         Scrutin.objects.all().delete()
         Vote.objects.all().delete()
-        
+
         tableau_scrutins = {}
         for line in open(options['tableau_scrutins']):
             scrutin = json.loads(line)
@@ -88,7 +88,8 @@ class Command(BaseCommand):
                                 id=scrutin_id,
                                 etape=etape,
                                 article=article,
-                                url_an=infos["url_scrutin"]
+                                url_an=infos["url_scrutin"],
+                                date=infos["date"],
                             )
                             scrutin_id += 1
                             scrutins.append(scrutin)
@@ -96,7 +97,7 @@ class Command(BaseCommand):
                                 votes.append(Vote(
                                     scrutin=scrutin,
                                     depute=deputes[vote["depute"]],
-                                    position=vote["position"]
+                                    position=vote["position"],
                                 ))
 
         print('creating', len(scrutins), "scrutins")

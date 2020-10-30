@@ -1,4 +1,4 @@
-import json, csv, time
+import json, csv, time, re
 import datetime
 
 from selenium import webdriver
@@ -72,6 +72,25 @@ def _parse_video(url):
     return transformed
 
 
+def _parse_CR_time(url):
+    resp = requests.get(url)
+    resp.encoding = 'utf-8'
+    soup = BeautifulSoup(resp.text, 'lxml')
+    text = soup.text
+    start = re.search(r"\(La séance est ouverte à\s*(.*?)\.\)", text)
+    if start:
+        start = start.group(1)
+    end = re.search(r"\(La séance est levée.*à\s*(.*?)\.\)", text)
+    if end:
+        end = end.group(1)
+    if start and end:
+        return "entre " + start + " et " + end
+    if not end and start:
+        return "à partir de " + start
+    if not start and end:
+        return "avant " + end
+
+
 class Command(BaseCommand):
 
     def add_arguments(self, parser):
@@ -105,5 +124,8 @@ class Command(BaseCommand):
                             url_CR = url_el['href']
                             print(' >>>>', url_CR)
                             scrutin.url_CR = url_CR
+                            heure = _parse_CR_time(url_CR)
+                            print(' >>>>++++', heure)
+                            scrutin.heure = heure
                         scrutin.save()
                         break

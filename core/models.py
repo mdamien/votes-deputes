@@ -54,6 +54,7 @@ class Scrutin(models.Model):
 	url_video = models.CharField(max_length=200, null=True)
 	url_CR = models.CharField(max_length=200, null=True)
 	date = models.CharField(max_length=200, null=True)
+	heure = models.CharField(max_length=200, null=True)
 
 
 class Vote(models.Model):
