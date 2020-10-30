@@ -46,6 +46,7 @@ class Etape(models.Model):
 	def __str__(self):
 		return self.titre
 
+
 class Vote(models.Model):
 	etape = models.ForeignKey(Etape, on_delete=models.CASCADE)
 	article = models.CharField(max_length=16, null=True)

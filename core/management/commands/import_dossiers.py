@@ -1,4 +1,4 @@
-import json, tqdm, glob
+import json, glob
 
 from django.core.management.base import BaseCommand, CommandError
 from core.models import Dossier, Etape

@@ -1,4 +1,4 @@
-import json, tqdm, csv
+import json, csv
 
 from django.core.management.base import BaseCommand, CommandError
 from core.models import Depute, Etape
