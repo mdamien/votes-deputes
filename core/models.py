@@ -1,5 +1,7 @@
 from django.db import models
 
+LEGISLATURE = 15
+
 
 class Depute(models.Model):
 	identifiant = models.CharField(max_length=16, primary_key=True)
@@ -23,6 +25,9 @@ class Dossier(models.Model):
 
 	def url(self, dep):
 		return dep.url() + "/dossier/" + self.identifiant
+
+	def url_an(self):
+		return f"http://www.assemblee-nationale.fr/dyn/{LEGISLATURE}/dossiers/{self.slug}" 
 
 	def __str__(self):
 		return self.titre
