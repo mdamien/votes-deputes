@@ -166,7 +166,7 @@ def depute_dossier(request, dep_id, dos_id):
 	etapes = Etape.objects.filter(dossier=dos).order_by("-date")
 	return HttpResponse(template([
 		_render_breadcrumb([dep, dos]),
-		L.p / L.a(href=dos.url_an()) / L.button(".btn.btn-info") / "lien dossier",
+		L.p / L.a(href=dos.url_an()) / L.button(".btn.btn-info") / "dossier législatif",
 		L.h2 / [
 			"Étapes",
 		],
