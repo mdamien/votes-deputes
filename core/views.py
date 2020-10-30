@@ -114,14 +114,14 @@ def homepage(request):
 
 
 def _display_depute_vote(dos, dep):
-	last_vote = Vote.objects.filter(etape__dossier=dos, article__isnull=True).order_by('etape__date').last()
+	last_vote = Vote.objects.filter(scrutin__etape__dossier=dos, scrutin__article__isnull=True).order_by('scrutin__etape__date').last()
 	if last_vote:
-		count = last_vote.etape.vote_set.all().count()
+		count = last_vote.scrutin.vote_set.all().count()
 	else:
 		count = 0
 	if count > 0:
 		try:
-			vote = Vote.objects.filter(etape__dossier=dos, article__isnull=True).order_by('etape__date').filter(depute=dep).last()
+			vote = Vote.objects.filter(scrutin__etape__dossier=dos, scrutin__article__isnull=True).get(depute=dep)
 		except:
 			vote = None
 		return _render_vote(vote, count)
@@ -151,10 +151,10 @@ def depute(request, dep_id):
 
 
 def _display_etape_vote(etape, dep):
-	count = etape.vote_set.filter(article__isnull=True).count()
+	count = Vote.objects.filter(scrutin__etape=etape, scrutin__article__isnull=True).count()
 	if count > 0:
 		try:
-			vote = etape.vote_set.get(depute=dep)
+			vote = Vote.objects.filter(scrutin__etape=etape, scrutin__article__isnull=True).get(depute=dep)
 		except:
 			vote = None
 		return _render_vote(vote, count)
@@ -185,10 +185,10 @@ def depute_dossier(request, dep_id, dos_id):
 
 
 def _display_article_vote(etape, dep, article):
-	count = etape.vote_set.filter(article=article).count()
+	count = Vote.objects.filter(scrutin__etape=etape, scrutin__article=article).count()
 	if count > 0:
 		try:
-			vote = etape.vote_set.filter(article=article, depute=dep).first()
+			vote = Vote.objects.filter(scrutin__etape=etape, scrutin__article=article).get(depute=dep)
 		except:
 			vote = None
 		return _render_vote(vote, count)
@@ -206,18 +206,18 @@ def depute_etape(request, dep_id, etape_id):
 	etape = Etape.objects.get(identifiant=etape_id)
 	dos = etape.dossier
 	try:
-		vote = etape.vote_set.filter(article__isnull=True).first()
+		scrutin = etape.scrutin_set.filter(article__isnull=True).first()
 	except:
-		vote = None
-	articles = etape.vote_set.values_list('article', flat=True).order_by('article').distinct()
+		scrutin = None
+	articles = etape.scrutin_set.values_list('article', flat=True).order_by('article').distinct()
 	articles = [a for a in articles if a]
 	articles.sort(key=_sort_articles)
 	return HttpResponse(template([
 		_render_breadcrumb([dep, dos, etape]),
 		(
 			(
-				L.p / L.a(href=vote.url_scrutin) / L.button(".btn.btn-primary") / "lien scrutin"
-			) if vote else None
+				L.p / L.a(href=scrutin.url_an) / L.button(".btn.btn-primary") / "lien scrutin"
+			) if scrutin else None
 		),
 		(
 			L.h2 / [
@@ -244,15 +244,15 @@ def depute_article(request, dep_id, etape_id, article):
 	etape = Etape.objects.get(identifiant=etape_id)
 	dos = etape.dossier
 	try:
-		vote = etape.vote_set.filter(article=article).first()
+		scrutin = etape.scrutin_set.filter(article=article).first()
 	except:
-		vote = None
+		scrutin = None
 	return HttpResponse(template([
 		_render_breadcrumb([dep, dos, etape, article]),
 		(
 			(
-				L.p / L.a(href=vote.url_scrutin) / L.button(".btn.btn-primary") / "lien scrutin"
-			) if vote else None
+				L.p / L.a(href=scrutin.url_an) / L.button(".btn.btn-primary") / "lien scrutin"
+			) if scrutin else None
 		),
 	]))
 

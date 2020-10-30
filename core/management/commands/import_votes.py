@@ -1,7 +1,7 @@
 import json, glob
 
 from django.core.management.base import BaseCommand, CommandError
-from core.models import Dossier, Etape, Vote, Depute
+from core.models import *
 
 
 def find_positions(json_file, position=None):
@@ -33,12 +33,17 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         deputes = {'PA'+dep.identifiant: dep for dep in Depute.objects.all()}
+
+        Scrutin.objects.all().delete()
         Vote.objects.all().delete()
+        
         tableau_scrutins = {}
         for line in open(options['tableau_scrutins']):
             scrutin = json.loads(line)
             tableau_scrutins[scrutin["numero"]] = scrutin
 
+        scrutin_id = 0
+        scrutins = []
         votes = []
         for file in glob.glob(options["files"]):
             json_file = json.load(open(file))['scrutin']
@@ -71,24 +76,30 @@ class Command(BaseCommand):
                         except:
                             # print("no etape", titre)
                             continue
+                        valid = False
+                        article = None
                         if "l'ensemble d" in titre:
-                            for vote in find_positions(json_file):
-                                votes.append(Vote(
-                                    etape=etape,
-                                    url_scrutin=infos["url_scrutin"],
-                                    depute=deputes[vote["depute"]],
-                                    position=vote["position"]
-                                ))
+                            valid = True
                         elif titre.startswith("l'article"):
+                            valid = True
                             article = titre.split("l'article")[1].split(' d')[0]
+                        if valid:
+                            scrutin = Scrutin(
+                                id=scrutin_id,
+                                etape=etape,
+                                article=article,
+                                url_an=infos["url_scrutin"]
+                            )
+                            scrutin_id += 1
+                            scrutins.append(scrutin)
                             for vote in find_positions(json_file):
                                 votes.append(Vote(
-                                    etape=etape,
-                                    article=article,
-                                    url_scrutin=infos["url_scrutin"],
+                                    scrutin=scrutin,
                                     depute=deputes[vote["depute"]],
                                     position=vote["position"]
                                 ))
 
+        print('creating', len(scrutins), "scrutins")
+        Scrutin.objects.bulk_create(scrutins)
         print('creating', len(votes), "votes")
         Vote.objects.bulk_create(votes)
