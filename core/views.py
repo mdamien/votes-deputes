@@ -214,9 +214,17 @@ def depute_etape(request, dep_id, etape_id):
 	articles.sort(key=_sort_articles)
 	return HttpResponse(template([
 		_render_breadcrumb([dep, dos, etape]),
-		(
+		L.p / (
 			(
-				L.p / L.a(href=scrutin.url_an) / L.button(".btn.btn-primary") / "lien scrutin"
+				L.a(href=scrutin.url_an) / L.button(".btn.btn-primary") / "scrutin",
+				(
+					' ',
+					L.a(href=scrutin.url_video) / L.button(".btn.btn-primary") / "video du  vote",
+				) if scrutin.url_video else None,
+				(
+					' ',
+					L.a(href=scrutin.url_CR) / L.button(".btn.btn-primary") / "compte-rendu",
+				) if scrutin.url_CR else None,
 			) if scrutin else None
 		),
 		(
@@ -251,7 +259,7 @@ def depute_article(request, dep_id, etape_id, article):
 		_render_breadcrumb([dep, dos, etape, article]),
 		(
 			(
-				L.p / L.a(href=scrutin.url_an) / L.button(".btn.btn-primary") / "lien scrutin"
+				L.p / L.a(href=scrutin.url_an) / L.button(".btn.btn-primary") / "scrutin"
 			) if scrutin else None
 		),
 	]))

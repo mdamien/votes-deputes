@@ -80,19 +80,30 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         cache_file = options['cache']
 
+        for scrutin in Scrutin.objects.filter(article__isnull=True):
+            url = scrutin.etape.dossier.url_an().replace('/dossiers/', '/dossiers/alt/')
+            print(url)
+            resp = requests.get(url)
+            soup = BeautifulSoup(resp.text, 'lxml')
 
-        url = "http://www.assemblee-nationale.fr/dyn/15/dossiers/alt/exploitation_commerciale_image_enfants"
-        resp = requests.get(url)
-        soup = BeautifulSoup(resp.text, 'lxml')
-
-
-        code_lect = 'AN2'
-        for span in list(soup.select('span'))[::-1]:
-            doc_id = span.get('data-document-id', '').strip()
-            if doc_id.startswith('RUAN'):
-                code_acte = _find_code_acte(span)
-                if 'DEBATS' in code_acte and code_lect in code_acte:
-                    url_video = span.parent.select_one('a[title="Accéder à la vidéo"]')['href']
-                    print(url_video)
-                    print(json.dumps(_parse_video(url_video), indent=2, ensure_ascii=False))
-                    return
+            code_lect = scrutin.etape.code_acte.split('-')[0]
+            print('  >', code_lect, scrutin.etape.code_acte)
+            for span in list(soup.select('span'))[::-1]:
+                doc_id = span.get('data-document-id', '').strip()
+                if doc_id.startswith('RUAN'):
+                    code_acte = _find_code_acte(span)
+                    if 'DEBATS' in code_acte and code_lect in code_acte:
+                        url_el = span.parent.select_one('a[title="Accéder à la vidéo"]')
+                        if url_el:
+                            url_video = url_el['href']
+                            print(' >> ', url_video)
+                            scrutin.url_video = url_video
+                            scrutin.save()
+                            # print(json.dumps(_parse_video(url_video), indent=2, ensure_ascii=False))
+                        url_el = span.parent.select_one('a[title="Accéder au compte-rendu"]')
+                        if url_el:
+                            url_CR = url_el['href']
+                            print(' >>>>', url_CR)
+                            scrutin.url_CR = url_CR
+                        scrutin.save()
+                        break

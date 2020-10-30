@@ -51,6 +51,9 @@ class Scrutin(models.Model):
 	etape = models.ForeignKey(Etape, on_delete=models.CASCADE)
 	article = models.CharField(max_length=16, null=True)
 	url_an = models.CharField(max_length=200)
+	url_video = models.CharField(max_length=200, null=True)
+	url_CR = models.CharField(max_length=200, null=True)
+	date = models.CharField(max_length=200, null=True)
 
 
 class Vote(models.Model):
