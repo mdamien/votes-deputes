@@ -223,7 +223,7 @@ def depute_etape(request, dep_id, etape_id):
 					scrutin.heure
 				) if scrutin.heure else None,
 			),
-		),
+		) if scrutin else None,
 		L.p / (
 			(
 				' ',
