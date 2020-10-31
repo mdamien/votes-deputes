@@ -215,7 +215,7 @@ def depute_etape(request, dep_id, etape_id):
 	return HttpResponse(template([
 		_render_breadcrumb([dep, dos, etape]),
 		(
-			L.span('.badge.badge-pill.badge-dark') / (
+			L.span('.badge.badge-dark') / (
 				'Le ',
 				scrutin.date,
 				(
