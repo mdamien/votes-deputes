@@ -3,7 +3,7 @@ from django.db.models.functions import Lower
 
 from lys import L, raw, render
 
-from core.models import Depute, Dossier, Etape, Vote
+from core.models import *
 
 
 HEADER = """
@@ -273,5 +273,95 @@ def depute_article(request, dep_id, etape_id, article):
 				L.p / L.a(href=scrutin.url_an) / L.button(".btn.btn-primary") / "scrutin"
 			) if scrutin else None
 		),
+	]))
+
+
+
+def top_pour(request):
+	results = []
+	for dep in Depute.objects.all():
+		c = 0
+		c = Vote.objects.filter(scrutin__article__isnull=True, depute=dep, position='pour').count()
+		results.append([dep, c])
+
+	results.sort(key=lambda r:-r[1])
+	lines = []
+	for i, r in enumerate(results):
+		dep, c = r
+		lines.append(
+			L.span(".list-group-item.list-group-item-action.flex-column.align-items-start") / 
+				f"{i+1}: {dep} ({dep.groupe}) avec {c} votes pour")
+	return HttpResponse(template([
+		L.h2 / "Top des députés qui ont votés pour les lois promulguées",
+		L.div(".list-group") / lines,
+	]))
+
+
+def top_pour_pourcentage(request):
+	results = []
+	for dep in Depute.objects.all():
+		c = 0
+		c = Vote.objects.filter(scrutin__article__isnull=True, depute=dep, position='pour').count()
+		c2 = Vote.objects.filter(scrutin__article__isnull=True, depute=dep).count()
+		if c2:
+			results.append([dep, c/c2, c])
+		else:
+			results.append([dep, 0, 0])
+
+	results.sort(key=lambda r: (-r[1], -r[2]))
+	lines = []
+	for i, r in enumerate(results):
+		dep, c, c2 = r
+		lines.append(
+			L.span(".list-group-item.list-group-item-action.flex-column.align-items-start") / 
+				f"{i+1}: {dep} ({dep.groupe}) avec {round(c*100, 2)}% de votes pour ({c2} votes)")
+	return HttpResponse(template([
+		L.h2 / "Top des députés qui ont votés pour les lois promulguées",
+		L.div(".list-group") / lines,
+	]))
+
+
+def top_contre_pourcentage(request):
+	results = []
+	for dep in Depute.objects.all():
+		c = 0
+		c = Vote.objects.filter(scrutin__article__isnull=True, depute=dep, position='contre').count()
+		c2 = Vote.objects.filter(scrutin__article__isnull=True, depute=dep).count()
+		if c2:
+			results.append([dep, c/c2, c])
+		else:
+			results.append([dep, 0, 0])
+
+	results.sort(key=lambda r: (-r[1], -r[2]))
+	lines = []
+	for i, r in enumerate(results):
+		dep, c, c2 = r
+		lines.append(
+			L.span(".list-group-item.list-group-item-action.flex-column.align-items-start") / 
+				f"{i+1}: {dep} ({dep.groupe}) avec {round(c*100, 2)}% de votes contre ({c2} votes)")
+	return HttpResponse(template([
+		L.h2 / "Top des députés qui ont votés contre les lois promulguées",
+		L.div(".list-group") / lines,
+	]))
+
+
+
+def top_contre(request):
+	results = []
+	for dep in Depute.objects.all():
+		c = 0
+		c = Vote.objects.filter(scrutin__article__isnull=True, depute=dep, position='contre').count()
+		results.append([dep, c])
+
+	results.sort(key=lambda r:-r[1])
+	lines = []
+	for i, r in enumerate(results):
+		dep, c = r
+		lines.append(
+			L.span(".list-group-item.list-group-item-action.flex-column.align-items-start") / 
+				f"{i+1}: {dep} ({dep.groupe}) avec {c} votes contre")
+	return HttpResponse(template([
+		L.h2 / "Top des députés qui ont votés contre les lois promulguées",
+		L.div(".list-group") / lines,
 	]))
 
