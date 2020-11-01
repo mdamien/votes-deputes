@@ -81,7 +81,7 @@ def homepage(request):
 		  	 <a href="https://www.nosdeputes.fr/circonscription" class="alert-link">NosDéputés.fr</a></p>
 		</div>
 		"""),
-		L.p / L.a(href="/deputes/inactifs") / L.button(".btn.btn-info") / "voir députés inactifs",
+		L.p / L.a(href="/deputes/inactifs") / L.button(".btn.btn-warning") / "voir députés inactifs",
 		L.h2 / [
 			"Députés ",
 			L.small(".text-muted") / " actifs"
