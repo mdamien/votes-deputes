@@ -48,13 +48,15 @@ class Etape(models.Model):
 
 
 class Scrutin(models.Model):
-	etape = models.ForeignKey(Etape, on_delete=models.CASCADE)
+	dossier = models.ForeignKey(Dossier, on_delete=models.CASCADE, null=True) # not null = Amendement/Motion
+	etape = models.ForeignKey(Etape, on_delete=models.CASCADE, null=True)
 	article = models.CharField(max_length=16, null=True)
 	url_an = models.CharField(max_length=200)
 	url_video = models.CharField(max_length=200, null=True)
 	url_CR = models.CharField(max_length=200, null=True)
 	date = models.CharField(max_length=200, null=True)
 	heure = models.CharField(max_length=200, null=True)
+	objet = models.CharField(max_length=200)
 
 
 class Vote(models.Model):

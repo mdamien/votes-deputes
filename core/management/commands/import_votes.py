@@ -48,11 +48,14 @@ class Command(BaseCommand):
         for file in glob.glob(options["files"]):
             json_file = json.load(open(file))['scrutin']
             num = int(json_file["numero"])
-            if num in tableau_scrutins:
+            if num not in tableau_scrutins:
+                print('not in tableau scrutin', num)
+            else:
                 infos = tableau_scrutins[num] 
                 link_dos = infos["url_dossier"]
                 if link_dos:
                     dos_slug = link_dos.split('/')[-1].replace('.asp', '')
+                    dossier = None
                     try:
                         dossier = Dossier.objects.get(slug=dos_slug)
                     except:
@@ -70,35 +73,34 @@ class Command(BaseCommand):
                         codeActe = "ANNLEC-DEBATS-DEC"
                     if '(lecture définitive)' in titre:
                         codeActe = "ANLDEF-DEBATS-DEC"
-                    if codeActe:
-                        try:
-                            etape = dossier.etape_set.get(code_acte=codeActe)
-                        except:
-                            # print("no etape", titre)
-                            continue
-                        valid = False
-                        article = None
-                        if "l'ensemble d" in titre:
-                            valid = True
-                        elif titre.startswith("l'article"):
-                            valid = True
-                            article = titre.split("l'article")[1].split(' d')[0]
-                        if valid:
-                            scrutin = Scrutin(
-                                id=scrutin_id,
-                                etape=etape,
-                                article=article,
-                                url_an=infos["url_scrutin"],
-                                date=infos["date"],
-                            )
-                            scrutin_id += 1
-                            scrutins.append(scrutin)
-                            for vote in find_positions(json_file):
-                                votes.append(Vote(
-                                    scrutin=scrutin,
-                                    depute=deputes[vote["depute"]],
-                                    position=vote["position"],
-                                ))
+                    etape = None
+                    try:
+                        etape = dossier.etape_set.get(code_acte=codeActe)
+                    except:
+                        # print("no etape", titre)
+                        continue
+                    article = None
+                    if "l'ensemble d" in titre:
+                        dossier = None
+                    elif titre.startswith("l'article"):
+                        dossier = None
+                        article = titre.split("l'article")[1].split(' d')[0]
+                    scrutin = Scrutin(
+                        id=num,
+                        dossier=dossier,
+                        etape=etape,
+                        article=article,
+                        url_an=infos["url_scrutin"],
+                        date=infos["date"],
+                        objet=infos["objet"],
+                    )
+                    scrutins.append(scrutin)
+                    for vote in find_positions(json_file):
+                        votes.append(Vote(
+                            scrutin=scrutin,
+                            depute=deputes[vote["depute"]],
+                            position=vote["position"],
+                        ))
 
         print('creating', len(scrutins), "scrutins")
         Scrutin.objects.bulk_create(scrutins)

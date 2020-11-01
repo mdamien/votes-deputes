@@ -117,14 +117,14 @@ def deputes_inactifs(request):
 
 
 def _display_depute_vote(dos, dep):
-	last_vote = Vote.objects.filter(scrutin__etape__dossier=dos, scrutin__article__isnull=True).order_by('scrutin__etape__date').last()
+	last_vote = Vote.objects.filter(scrutin__dossier__isnull=True, scrutin__etape__dossier=dos, scrutin__article__isnull=True).order_by('scrutin__etape__date').last()
 	if last_vote:
 		count = last_vote.scrutin.vote_set.all().count()
 	else:
 		count = 0
 	if count > 0:
 		try:
-			vote = Vote.objects.filter(scrutin__etape__dossier=dos, scrutin__article__isnull=True).get(depute=dep)
+			vote = Vote.objects.filter(scrutin__dossier__isnull=True, scrutin__etape__dossier=dos, scrutin__article__isnull=True).get(depute=dep)
 		except:
 			vote = None
 		return _render_vote(vote, count)
@@ -154,10 +154,10 @@ def depute(request, dep_id):
 
 
 def _display_etape_vote(etape, dep):
-	count = Vote.objects.filter(scrutin__etape=etape, scrutin__article__isnull=True).count()
+	count = Vote.objects.filter(scrutin__dossier__isnull=True, scrutin__etape=etape, scrutin__article__isnull=True).count()
 	if count > 0:
 		try:
-			vote = Vote.objects.filter(scrutin__etape=etape, scrutin__article__isnull=True).get(depute=dep)
+			vote = Vote.objects.filter(scrutin__dossier__isnull=True, scrutin__etape=etape, scrutin__article__isnull=True).get(depute=dep)
 		except:
 			vote = None
 		return _render_vote(vote, count)
@@ -188,10 +188,20 @@ def depute_dossier(request, dep_id, dos_id):
 
 
 def _display_article_vote(etape, dep, article):
-	count = Vote.objects.filter(scrutin__etape=etape, scrutin__article=article).count()
+	count = Vote.objects.filter(scrutin__dossier__isnull=True, scrutin__etape=etape, scrutin__article=article).count()
 	if count > 0:
 		try:
-			vote = Vote.objects.filter(scrutin__etape=etape, scrutin__article=article).get(depute=dep)
+			vote = Vote.objects.filter(scrutin__dossier__isnull=True, scrutin__etape=etape, scrutin__article=article).get(depute=dep)
+		except:
+			vote = None
+		return _render_vote(vote, count)
+
+
+def _display_scrutin_vote(dep, scrutin):
+	count = scrutin.vote_set.count()
+	if count > 0:
+		try:
+			vote = scrutin.vote_set.get(depute=dep)
 		except:
 			vote = None
 		return _render_vote(vote, count)
@@ -209,16 +219,19 @@ def depute_etape(request, dep_id, etape_id):
 	etape = Etape.objects.get(identifiant=etape_id)
 	dos = etape.dossier
 	try:
-		scrutin = etape.scrutin_set.filter(article__isnull=True).first()
+		scrutin = etape.scrutin_set.filter(dossier__isnull=True, article__isnull=True).first()
 	except:
 		scrutin = None
 	articles = etape.scrutin_set.values_list('article', flat=True).order_by('article').distinct()
 	articles = [a for a in articles if a]
 	articles.sort(key=_sort_articles)
+
+	scrutins_amendements = etape.scrutin_set.filter(dossier=dos, etape=etape)
+
 	return HttpResponse(template([
 		_render_breadcrumb([dep, dos, etape]),
 		(
-			L.span('.badge.badge-dark') / (
+			L.span('.badge.badge-info') / (
 				'Le ',
 				scrutin.date,
 				(
@@ -230,14 +243,14 @@ def depute_etape(request, dep_id, etape_id):
 		L.p / (
 			(
 				' ',
-				L.a(href=scrutin.url_an) / L.button(".btn.btn-primary") / f'Scrutin',
+				L.a(href=scrutin.url_an) / L.button(".btn.btn-info") / f'Scrutin',
 				(
 					' ',
-					L.a(href=scrutin.url_video) / L.button(".btn.btn-primary") / "video du  vote",
+					L.a(href=scrutin.url_video) / L.button(".btn.btn-info") / "video du  vote",
 				) if scrutin.url_video else None,
 				(
 					' ',
-					L.a(href=scrutin.url_CR) / L.button(".btn.btn-primary") / "compte-rendu",
+					L.a(href=scrutin.url_CR) / L.button(".btn.btn-info") / "compte-rendu",
 				) if scrutin.url_CR else None,
 			) if scrutin else None
 		),
@@ -258,6 +271,25 @@ def depute_etape(request, dep_id, etape_id):
 				for article in articles
 			]
 		) if articles else None,
+		(
+			L.br,
+			L.br,
+			L.h2 / [
+				"Amendements et motions",
+				L.small(".text-muted") / " votés"
+			],
+			L.div(".list-group") / [
+				L.a(".list-group-item.list-group-item-action.flex-column.align-items-start",
+					href="/" + dep.identifiant + "/scrutin/" + str(amdt_scrutin.id)
+				) / [
+					L.div(".d-flex.w-100.justify-content-between") / [
+						L.h5(".mb-1") / f"{amdt_scrutin.objet}",
+						_display_scrutin_vote(dep, amdt_scrutin),
+					]
+				]
+				for amdt_scrutin in scrutins_amendements
+			]
+		) if scrutins_amendements.count() else None,
 	]))
 
 
@@ -273,7 +305,21 @@ def depute_article(request, dep_id, etape_id, article):
 		_render_breadcrumb([dep, dos, etape, article]),
 		(
 			(
-				L.p / L.a(href=scrutin.url_an) / L.button(".btn.btn-primary") / "scrutin"
+				L.p / L.a(href=scrutin.url_an) / L.button(".btn.btn-info") / "scrutin"
+			) if scrutin else None
+		),
+	]))
+
+
+
+def depute_scrutin(request, dep_id, scrutin_id):
+	dep = Depute.objects.get(identifiant=dep_id)
+	scrutin = Scrutin.objects.get(id=scrutin_id)
+	return HttpResponse(template([
+		_render_breadcrumb([dep, scrutin.dossier, scrutin.etape, scrutin.objet]),
+		(
+			(
+				L.p / L.a(href=scrutin.url_an) / L.button(".btn.btn-info") / "scrutin"
 			) if scrutin else None
 		),
 	]))
