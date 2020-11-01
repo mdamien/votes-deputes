@@ -17,10 +17,12 @@ from django.contrib import admin
 from django.urls import path, include
 
 from .views import homepage, depute, depute_dossier, depute_etape, depute_article, \
-    top_pour, top_contre, top_pour_pourcentage, top_contre_pourcentage, top_pour_lois
+    top_pour, top_contre, top_pour_pourcentage, top_contre_pourcentage, top_pour_lois, \
+    deputes_inactifs
 
 urlpatterns = [
     path('', homepage),
+    path('deputes/inactifs', deputes_inactifs),
     path('top/pour', top_pour),
     path('top/pour/lois', top_pour_lois),
     path('top/pour-pourcentage', top_pour_pourcentage),

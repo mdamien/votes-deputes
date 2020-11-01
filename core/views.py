@@ -73,7 +73,6 @@ def _render_vote(vote, count):
 
 def homepage(request):
 	deputes = Depute.objects.filter(actif=True).order_by(Lower('nom'), 'prenom')
-	deputes_inactifs = Depute.objects.filter(actif=False).order_by(Lower('nom'), 'prenom')
 	return HttpResponse(template([
 		raw("""
 		<div class="alert alert-dismissible alert-info">
@@ -82,6 +81,7 @@ def homepage(request):
 		  	 <a href="https://www.nosdeputes.fr/circonscription" class="alert-link">NosDéputés.fr</a></p>
 		</div>
 		"""),
+		L.p / L.a(href="/deputes/inactifs") / L.button(".btn.btn-info") / "voir députés inactifs",
 		L.h2 / [
 			"Députés ",
 			L.small(".text-muted") / " actifs"
@@ -95,8 +95,11 @@ def homepage(request):
 			]
 			for dep in deputes
 		],
-		L.br,
-		L.br,
+	]))
+
+def deputes_inactifs(request):
+	deputes_inactifs = Depute.objects.filter(actif=False).order_by(Lower('nom'), 'prenom')
+	return HttpResponse(template([
 		L.h2 / [
 			"Députés ",
 			L.small(".text-muted") / " inactifs"
