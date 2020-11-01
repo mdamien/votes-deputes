@@ -304,6 +304,16 @@ def depute_article(request, dep_id, etape_id, article):
 	return HttpResponse(template([
 		_render_breadcrumb([dep, dos, etape, article]),
 		(
+			L.span('.badge.badge-info') / (
+				'Le ',
+				scrutin.date,
+				(
+					' ',
+					scrutin.heure
+				) if scrutin.heure else None,
+			),
+		) if scrutin else None,
+		(
 			(
 				L.p / L.a(href=scrutin.url_an) / L.button(".btn.btn-info") / "scrutin"
 			) if scrutin else None
@@ -317,6 +327,14 @@ def depute_scrutin(request, dep_id, scrutin_id):
 	scrutin = Scrutin.objects.get(id=scrutin_id)
 	return HttpResponse(template([
 		_render_breadcrumb([dep, scrutin.dossier, scrutin.etape, scrutin.objet]),
+		L.span('.badge.badge-info') / (
+			'Le ',
+			scrutin.date,
+			(
+				' ',
+				scrutin.heure
+			) if scrutin.heure else None,
+		),
 		(
 			(
 				L.p / L.a(href=scrutin.url_an) / L.button(".btn.btn-info") / "scrutin"
