@@ -18,7 +18,7 @@ from django.urls import path, include
 
 from .views import homepage, depute, depute_dossier, depute_etape, depute_article, \
     top_pour, top_contre, top_pour_pourcentage, top_contre_pourcentage, top_pour_lois, \
-    deputes_inactifs, depute_scrutin
+    deputes_inactifs, depute_scrutin, lois_en_cours, autres_votes
 
 urlpatterns = [
     path('', homepage),
@@ -29,6 +29,8 @@ urlpatterns = [
     path('top/contre', top_contre),
     path('top/contre-pourcentage', top_contre_pourcentage),
     path('<dep_id>', depute),
+    path('<dep_id>/lois-en-cours', lois_en_cours),
+    path('<dep_id>/autres-votes', autres_votes),
     path('<dep_id>/dossier/<dos_id>', depute_dossier),
     path('<dep_id>/etape/<etape_id>', depute_etape),
     path('<dep_id>/scrutin/<scrutin_id>', depute_scrutin),

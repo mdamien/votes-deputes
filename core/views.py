@@ -135,6 +135,11 @@ def depute(request, dep_id):
 	dossiers = Dossier.objects.filter(date_promulgation__isnull=False).order_by("-date_promulgation", "titre")
 	return HttpResponse(template([
 		_render_breadcrumb([dep]),
+		L.p / (
+			L.a(href=dep.url()+"/lois-en-cours") / L.button(".btn.btn-warning") / "voir lois en cours",
+			' ',
+			L.a(href=dep.url()+"/autres-votes") / L.button(".btn.btn-warning") / "voir autres votes",
+		),
 		L.h2 / [
 			"Lois",
 			L.small(".text-muted") / " promulguées"
@@ -149,6 +154,52 @@ def depute(request, dep_id):
 				]
 			]
 			for dos in dossiers
+		]
+	]))
+
+
+
+def lois_en_cours(request, dep_id):
+	dep = Depute.objects.get(identifiant=dep_id)
+	dossiers = Dossier.objects.filter(date_promulgation__isnull=True)
+	return HttpResponse(template([
+		_render_breadcrumb([dep, 'Lois en cours']),
+		L.h2 / [
+			"Lois",
+			L.small(".text-muted") / " en cours d'étude"
+		],
+		L.div(".list-group") / [
+			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start",
+				href=dos.url(dep)
+			) / [
+				L.div(".d-flex.w-100.justify-content-between") / [
+					L.h5(".mb-1") / dos.titre,
+					_display_depute_vote(dos, dep),
+				]
+			]
+			for dos in dossiers
+		]
+	]))
+
+
+def autres_votes(request, dep_id):
+	dep = Depute.objects.get(identifiant=dep_id)
+	scrutins = Scrutin.objects.filter(dossier__isnull=True, etape__isnull=True)
+	return HttpResponse(template([
+		_render_breadcrumb([dep, 'Autres votes']),
+		L.h2 / [
+			"Autres votes",
+		],
+		L.div(".list-group") / [
+			L.a(".list-group-item.list-group-item-action.flex-column.align-items-start",
+				href=dep.url()+'/scrutin/'+str(scrutin.id)
+			) / [
+				L.div(".d-flex.w-100.justify-content-between") / [
+					L.h5(".mb-1") / scrutin.objet,
+					_display_scrutin_vote(dep, scrutin),
+				]
+			]
+			for scrutin in scrutins
 		]
 	]))
 
@@ -347,7 +398,7 @@ def depute_scrutin(request, dep_id, scrutin_id):
 def top_pour(request):
 	results = []
 	for dep in Depute.objects.all():
-		c = Vote.objects.filter(scrutin__article__isnull=True, depute=dep, position='pour').count()
+		c = Vote.objects.filter(scrutin_dossier=None, scrutin__article__isnull=True, depute=dep, position='pour').count()
 		results.append([dep, c])
 
 	results.sort(key=lambda r:-r[1])
@@ -366,8 +417,8 @@ def top_pour(request):
 def top_pour_pourcentage(request):
 	results = []
 	for dep in Depute.objects.all():
-		c = Vote.objects.filter(scrutin__article__isnull=True, depute=dep, position='pour').count()
-		c2 = Vote.objects.filter(scrutin__article__isnull=True, depute=dep).count()
+		c = Vote.objects.filter(scrutin_dossier=None, scrutin__article__isnull=True, depute=dep, position='pour').count()
+		c2 = Vote.objects.filter(scrutin_dossier=None, scrutin__article__isnull=True, depute=dep).count()
 		if c2:
 			results.append([dep, c/c2, c])
 		else:
@@ -389,8 +440,8 @@ def top_pour_pourcentage(request):
 def top_contre_pourcentage(request):
 	results = []
 	for dep in Depute.objects.all():
-		c = Vote.objects.filter(scrutin__article__isnull=True, depute=dep, position='contre').count()
-		c2 = Vote.objects.filter(scrutin__article__isnull=True, depute=dep).count()
+		c = Vote.objects.filter(scrutin_dossier=None, scrutin__article__isnull=True, depute=dep, position='contre').count()
+		c2 = Vote.objects.filter(scrutin_dossier=None, scrutin__article__isnull=True, depute=dep).count()
 		if c2:
 			results.append([dep, c/c2, c])
 		else:
@@ -413,7 +464,7 @@ def top_contre_pourcentage(request):
 def top_contre(request):
 	results = []
 	for dep in Depute.objects.all():
-		c = Vote.objects.filter(scrutin__article__isnull=True, depute=dep, position='contre').count()
+		c = Vote.objects.filter(scrutin_dossier=None, scrutin__article__isnull=True, depute=dep, position='contre').count()
 		results.append([dep, c])
 
 	results.sort(key=lambda r:-r[1])
@@ -435,8 +486,8 @@ def top_pour_lois(request):
 	results = []
 	for dossier in Dossier.objects.filter(date_promulgation__isnull=False):
 		c = 0
-		c = Vote.objects.filter(scrutin__etape__dossier=dossier, position='pour').count()
-		c2 = Vote.objects.filter(scrutin__etape__dossier=dossier).count()
+		c = Vote.objects.filter(scrutin_dossier=None, scrutin__etape__dossier=dossier, position='pour').count()
+		c2 = Vote.objects.filter(scrutin_dossier=None, scrutin__etape__dossier=dossier).count()
 		if c2:
 			results.append([dossier, c/c2, c])
 		else:
