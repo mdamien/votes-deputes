@@ -76,7 +76,7 @@ def homepage(request):
 	return HttpResponse(template([
 		raw("""
 		<div class="alert alert-dismissible alert-info">
-		  <p>Ce site permet de retrouver facilement le votes de vos députés sur les lois et articles des lois</p>
+		  <p>Ce site permet de retrouver facilement les votes de vos députés</p>
 		  <p>Vous pouvez trouver votre député par circonscription sur
 		  	 <a href="https://www.nosdeputes.fr/circonscription" class="alert-link">NosDéputés.fr</a></p>
 		</div>
