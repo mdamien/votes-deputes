@@ -15,3 +15,7 @@ cd ..
 ./manage.py import_dossiers "data/Dossiers_Legislatifs_XV.json/json/dossierParlementaire/*.json"
 ./manage.py import_votes "data/Scrutins_XV.json/json/*.json" data/scrutins.jsonl
 ```
+
+## Capture d'écran
+
+![image](https://user-images.githubusercontent.com/1469823/99403597-ec7ceb00-28ea-11eb-9608-73317eca751b.png)
